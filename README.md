@@ -1,3 +1,5 @@
+项目基于下面的基础项目和内容，并做了单卡设置
+
 <div align="center">
   <!-- <h1><b> Time-LLM </b></h1> -->
   <!-- <h2><b> Time-LLM </b></h2> -->
