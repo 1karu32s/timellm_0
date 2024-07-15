@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Black">
+    <option name="sdkName" value="test" />
+  </component>
+  <component name="ProjectRootManager" version="2" project-jdk-name="Remote Python 3.11.9 (sftp://zhouziqi@219.242.247.194:22/home/zhouziqi/.virtualenvs/Time-LLM-main/bin/python)" project-jdk-type="Python SDK" />
+</project>
