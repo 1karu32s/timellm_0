@@ -74,7 +74,7 @@ Notably, we show that time series analysis (e.g., forecasting) can be cast as ye
 ## Requirements
 Use python 3.11 from MiniConda
 
-- torch==2.2.2
+- torch==1.13.1
 - accelerate==0.28.0
 - einops==0.7.0
 - matplotlib==3.7.0
