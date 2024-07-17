@@ -1,8 +1,6 @@
 from math import sqrt
-
 import torch
 import torch.nn as nn
-
 from transformers import LlamaConfig, LlamaModel, LlamaTokenizer, GPT2Config, GPT2Model, GPT2Tokenizer, BertConfig, BertModel, BertTokenizer
 from layers.Embed import PatchEmbedding
 import transformers
@@ -38,104 +36,52 @@ class Model(nn.Module):
 
         if configs.llm_model == 'LLAMA':
             model_path = '/home/zhouziqi/llama-7b'
-            self.llama_config = LlamaConfig.from_pretrained(model_path)
+            self.llama_config = LlamaConfig.from_pretrained(model_path, local_files_only=True)
             self.llama_config.num_hidden_layers = configs.llm_layers
             self.llama_config.output_attentions = True
             self.llama_config.output_hidden_states = True
-            try:
-                self.llm_model = LlamaModel.from_pretrained(
-                    model_path,
-                    trust_remote_code=True,
-                    local_files_only=True,
-                    config=self.llama_config,
-                )
-            except EnvironmentError:
-                print("Local model files not found. Attempting to download...")
-                self.llm_model = LlamaModel.from_pretrained(
-                    'huggyllama/llama-7b',
-                    trust_remote_code=True,
-                    local_files_only=False,
-                    config=self.llama_config,
-                )
-            try:
-                self.tokenizer = LlamaTokenizer.from_pretrained(
-                    model_path,
-                    trust_remote_code=True,
-                    local_files_only=True
-                )
-            except EnvironmentError:
-                print("Local tokenizer files not found. Attempting to download...")
-                self.tokenizer = LlamaTokenizer.from_pretrained(
-                    'huggyllama/llama-7b',
-                    trust_remote_code=True,
-                    local_files_only=False
-                )
+            self.llm_model = LlamaModel.from_pretrained(
+                model_path,
+                local_files_only=True,
+                config=self.llama_config
+            )
+            self.tokenizer = LlamaTokenizer.from_pretrained(
+                model_path,
+                local_files_only=True
+            )
+
         elif configs.llm_model == 'GPT2':
-            self.gpt2_config = GPT2Config.from_pretrained('openai-community/gpt2')
+            model_path = '/home/zhouziqi/GPT-2'
+            self.gpt2_config = GPT2Config.from_pretrained(model_path, local_files_only=True)
             self.gpt2_config.num_hidden_layers = configs.llm_layers
             self.gpt2_config.output_attentions = True
             self.gpt2_config.output_hidden_states = True
-            try:
-                self.llm_model = GPT2Model.from_pretrained(
-                    'openai-community/gpt2',
-                    trust_remote_code=True,
-                    local_files_only=True,
-                    config=self.gpt2_config,
-                )
-            except EnvironmentError:
-                print("Local model files not found. Attempting to download...")
-                self.llm_model = GPT2Model.from_pretrained(
-                    'openai-community/gpt2',
-                    trust_remote_code=True,
-                    local_files_only=False,
-                    config=self.gpt2_config,
-                )
-            try:
-                self.tokenizer = GPT2Tokenizer.from_pretrained(
-                    'openai-community/gpt2',
-                    trust_remote_code=True,
-                    local_files_only=True
-                )
-            except EnvironmentError:
-                print("Local tokenizer files not found. Attempting to download...")
-                self.tokenizer = GPT2Tokenizer.from_pretrained(
-                    'openai-community/gpt2',
-                    trust_remote_code=True,
-                    local_files_only=False
-                )
+            self.llm_model = GPT2Model.from_pretrained(
+                model_path,
+                local_files_only=True,
+                config=self.gpt2_config
+            )
+            self.tokenizer = GPT2Tokenizer.from_pretrained(
+                model_path,
+                local_files_only=True
+            )
+
         elif configs.llm_model == 'BERT':
-            self.bert_config = BertConfig.from_pretrained('google-bert/bert-base-uncased')
+            model_path = '/home/zhouziqi/bert-base-uncased'
+            self.bert_config = BertConfig.from_pretrained(model_path, local_files_only=True)
             self.bert_config.num_hidden_layers = configs.llm_layers
             self.bert_config.output_attentions = True
             self.bert_config.output_hidden_states = True
-            try:
-                self.llm_model = BertModel.from_pretrained(
-                    'google-bert/bert-base-uncased',
-                    trust_remote_code=True,
-                    local_files_only=True,
-                    config=self.bert_config,
-                )
-            except EnvironmentError:
-                print("Local model files not found. Attempting to download...")
-                self.llm_model = BertModel.from_pretrained(
-                    'google-bert/bert-base-uncased',
-                    trust_remote_code=True,
-                    local_files_only=False,
-                    config=self.bert_config,
-                )
-            try:
-                self.tokenizer = BertTokenizer.from_pretrained(
-                    'google-bert/bert-base-uncased',
-                    trust_remote_code=True,
-                    local_files_only=True
-                )
-            except EnvironmentError:
-                print("Local tokenizer files not found. Attempting to download...")
-                self.tokenizer = BertTokenizer.from_pretrained(
-                    'google-bert/bert-base-uncased',
-                    trust_remote_code=True,
-                    local_files_only=False
-                )
+            self.llm_model = BertModel.from_pretrained(
+                model_path,
+                local_files_only=True,
+                config=self.bert_config
+            )
+            self.tokenizer = BertTokenizer.from_pretrained(
+                model_path,
+                local_files_only=True
+            )
+
         else:
             raise Exception('LLM model is not defined')
 
