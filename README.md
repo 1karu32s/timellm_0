@@ -1,5 +1,7 @@
+
+
 <div align="center">
-  <!-- <h1><b> Time-LLM </b></h1> -->
+  <h1><b> 项目基于下面的基础项目和内容，并做了单卡设置 </b></h1>
   <!-- <h2><b> Time-LLM </b></h2> -->
   <h2><b> (ICLR'24) Time-LLM: Time Series Forecasting by Reprogramming Large Language Models </b></h2>
 </div>
@@ -72,7 +74,7 @@ Notably, we show that time series analysis (e.g., forecasting) can be cast as ye
 ## Requirements
 Use python 3.11 from MiniConda
 
-- torch==2.2.2
+- torch==1.13.1
 - accelerate==0.28.0
 - einops==0.7.0
 - matplotlib==3.7.0
