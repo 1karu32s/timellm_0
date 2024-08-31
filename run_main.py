@@ -14,10 +14,23 @@ import random
 import numpy as np
 import os
 
+# 设置环境变量
 os.environ['CURL_CA_BUNDLE'] = ''
 os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "max_split_size_mb:64"
 
 from utils.tools import del_files, EarlyStopping, adjust_learning_rate, vali, load_content
+
+# 设置日志文件路径
+log_dir = "training_logs"
+if not os.path.exists(log_dir):
+    os.makedirs(log_dir)
+log_file_path = os.path.join(log_dir, "training_log.txt")
+
+def log_message(message):
+    """打印并保存日志信息"""
+    print(message)  # 打印到控制台
+    with open(log_file_path, "a") as log_file:
+        log_file.write(message + "\n")  # 保存到文件
 
 parser = argparse.ArgumentParser(description='Time-LLM')
 
@@ -79,7 +92,6 @@ parser.add_argument('--stride', type=int, default=8, help='stride')
 parser.add_argument('--prompt_domain', type=int, default=0, help='')
 parser.add_argument('--llm_model', type=str, default='GPT2', help='LLM model') # LLAMA, GPT2, BERT
 parser.add_argument('--llm_dim', type=int, default='768', help='LLM model dimension')# LLama7b:4096; GPT2-small:768; BERT-base:768
-
 
 # optimization
 parser.add_argument('--num_workers', type=int, default=10, help='data loader num workers')
@@ -217,11 +229,11 @@ for ii in range(args.itr):
                 train_loss.append(loss.item())
 
             if (i + 1) % 100 == 0:
-                accelerator.print(
+                log_message(
                     "\titers: {0}, epoch: {1} | loss: {2:.7f}".format(i + 1, epoch + 1, loss.item()))
                 speed = (time.time() - time_now) / iter_count
                 left_time = speed * ((args.train_epochs - epoch) * train_steps - i)
-                accelerator.print('\tspeed: {:.4f}s/iter; left time: {:.4f}s'.format(speed, left_time))
+                log_message('\tspeed: {:.4f}s/iter; left time: {:.4f}s'.format(speed, left_time))
                 iter_count = 0
                 time_now = time.time()
 
@@ -237,34 +249,34 @@ for ii in range(args.itr):
                 adjust_learning_rate(accelerator, model_optim, scheduler, epoch + 1, args, printout=False)
                 scheduler.step()
 
-        accelerator.print("Epoch: {} cost time: {}".format(epoch + 1, time.time() - epoch_time))
+        log_message("Epoch: {} cost time: {}".format(epoch + 1, time.time() - epoch_time))
         train_loss = np.average(train_loss)
         vali_loss, vali_mae_loss = vali(args, accelerator, model, vali_data, vali_loader, criterion, mae_metric)
         test_loss, test_mae_loss = vali(args, accelerator, model, test_data, test_loader, criterion, mae_metric)
-        accelerator.print(
+        log_message(
             "Epoch: {0} | Train Loss: {1:.7f} Vali Loss: {2:.7f} Test Loss: {3:.7f} MAE Loss: {4:.7f}".format(
                 epoch + 1, train_loss, vali_loss, test_loss, test_mae_loss))
 
         early_stopping(vali_loss, model, path)
         if early_stopping.early_stop:
-            accelerator.print("Early stopping")
+            log_message("Early stopping")
             break
 
         if args.lradj != 'TST':
             if args.lradj == 'COS':
                 scheduler.step()
-                accelerator.print("lr = {:.10f}".format(model_optim.param_groups[0]['lr']))
+                log_message("lr = {:.10f}".format(model_optim.param_groups[0]['lr']))
             else:
                 if epoch == 0:
                     args.learning_rate = model_optim.param_groups[0]['lr']
-                    accelerator.print("lr = {:.10f}".format(model_optim.param_groups[0]['lr']))
+                    log_message("lr = {:.10f}".format(model_optim.param_groups[0]['lr']))
                 adjust_learning_rate(accelerator, model_optim, scheduler, epoch + 1, args, printout=True)
 
         else:
-            accelerator.print('Updating learning rate to {}'.format(scheduler.get_last_lr()[0]))
+            log_message('Updating learning rate to {}'.format(scheduler.get_last_lr()[0]))
 
 accelerator.wait_for_everyone()
 if accelerator.is_local_main_process:
     path = './checkpoints'  # unique checkpoint saving path
     del_files(path)  # delete checkpoint files
-    accelerator.print('success delete checkpoints')
+    log_message('success delete checkpoints')
